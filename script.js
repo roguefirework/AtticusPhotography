@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    (function() {
+        emailjs.init("RF_MG9n5RCWmhFAsd"); // Replace with your EmailJS user ID
+    })();
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
@@ -39,27 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     mobileMenuBtn.addEventListener('click', function() {
         navMenu.classList.toggle('active');
     });
-   
-    // Form submission
-    const contactForm = document.querySelector('.contact-form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-           
-            // Get form values
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-           
-            // Simple validation
-            if (name && email) {
-                alert(`Thank you ${name}! Your message has been sent. I'll respond to ${email} soon.`);
-                contactForm.reset();
-            } else {
-                alert('Please fill in all required fields.');
-            }
-        });
-    }
-   
+
     // Gallery image modal
     const galleryItems = document.querySelectorAll('.gallery-item');
     galleryItems.forEach(item => {
@@ -91,5 +74,116 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.removeChild(modal);
             });
         });
+    });
+    // Contact form
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const messageInput = document.getElementById('message');
+    const subjectInput = document.getElementById('subject');
+    const successMessage = document.getElementById('successMessage');
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.textContent;
+
+    successMessage.style.display = 'none';
+    // Validation functions
+    function validateName() {
+        if (nameInput.value.trim() === '') {
+            showError(nameInput, 'nameError', 'Name is required');
+            return false;
+        }
+        hideError(nameInput, 'nameError');
+        return true;
+    }
+
+    function validateEmail() {
+        const emailValue = emailInput.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (emailValue === '') {
+            showError(emailInput, 'emailError', 'Email is required');
+            return false;
+        } else if (!emailRegex.test(emailValue)) {
+            showError(emailInput, 'emailError', 'Please enter a valid email');
+            return false;
+        }
+        hideError(emailInput, 'emailError');
+        return true;
+    }
+
+    function validateMessage() {
+        if (messageInput.value.trim() === '') {
+            showError(messageInput, 'messageError', 'Message is required');
+            return false;
+        }
+        hideError(messageInput, 'messageError');
+        return true;
+    }
+
+    function showError(input, errorId, message) {
+        const errorElement = document.getElementById(errorId);
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        input.parentElement.classList.add('invalid');
+    }
+
+    function hideError(input, errorId) {
+        const errorElement = document.getElementById(errorId);
+        errorElement.style.display = 'none';
+        input.parentElement.classList.remove('invalid');
+    }
+
+    // Event listeners for validation
+    nameInput.addEventListener('blur', validateName);
+    emailInput.addEventListener('blur', validateEmail);
+    messageInput.addEventListener('blur', validateMessage);
+
+    async function sendEmail(formData) {
+        try {
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+
+            const response = await emailjs.send(
+                'service_n4e5lzt',
+                'template_nuk3i22', // Replace with your EmailJS template ID
+                formData
+            );
+
+            if (response.status === 200) {
+                successMessage.style.display = 'block';
+                contactForm.reset();
+
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            } else {
+                throw new Error('Failed to send email');
+            }
+        } catch (error) {
+            console.error('Email sending error:', error);
+            alert('Failed to send your message. Please try again later.');
+        } finally {
+            submitBtn.textContent = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Validate all fields
+        const isNameValid = validateName();
+        const isEmailValid = validateEmail();
+        const isMessageValid = validateMessage();
+
+        if (isNameValid && isEmailValid && isMessageValid) {
+            const formData = {
+                from_name: nameInput.value.trim(),
+                from_email: emailInput.value.trim(),
+                subject: subjectInput.value.trim() || 'Message from Photography Website',
+                message: messageInput.value.trim()
+            };
+            await sendEmail(formData);
+        }
     });
 });
