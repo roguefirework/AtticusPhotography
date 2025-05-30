@@ -85,6 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const originalBtnText = submitBtn.textContent;
 
     successMessage.style.display = 'none';
+    hideError(emailInput, 'emailError');
+    hideError(messageInput, 'messageError');
+    hideError(nameInput, 'nameError');
+
     // Validation functions
     function validateName() {
         if (nameInput.value.trim() === '') {
