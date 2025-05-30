@@ -1,51 +1,40 @@
 document.addEventListener('DOMContentLoaded', function() {
     (function() {
-        emailjs.init("RF_MG9n5RCWmhFAsd"); // Replace with your EmailJS user ID
+        emailjs.init("RF_MG9n5RCWmhFAsd");
     })();
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.page');
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const navMenu = document.querySelector('nav ul');
    
-    // Show only the about page initially
     document.getElementById('about').style.display = 'block';
    
-    // Navigation click handler
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
            
-            // Get target page ID
             const targetId = this.getAttribute('href').substring(1);
            
-            // Hide all pages
             pages.forEach(page => {
                 page.style.display = 'none';
             });
            
-            // Show target page
             document.getElementById(targetId).style.display = 'block';
            
-            // Update active link
             navLinks.forEach(link => link.classList.remove('active'));
             this.classList.add('active');
            
-            // Close mobile menu if open
             navMenu.classList.remove('active');
            
-            // Scroll to top
             window.scrollTo(0, 0);
         });
     });
    
-    // Mobile menu toggle
     mobileMenuBtn.addEventListener('click', function() {
         navMenu.classList.toggle('active');
     });
 
-    // Gallery image modal
-    const galleryItems = document.querySelectorAll('.gallery-item');
-    galleryItems.forEach(item => {
+    const makeBig = item => {
         item.addEventListener('click', function() {
             const imgSrc = this.querySelector('img').src;
             const modal = document.createElement('div');
@@ -59,23 +48,24 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.style.justifyContent = 'center';
             modal.style.alignItems = 'center';
             modal.style.zIndex = '2000';
-           
+
             const modalImg = document.createElement('img');
             modalImg.src = imgSrc;
             modalImg.style.maxWidth = '90%';
             modalImg.style.maxHeight = '90%';
             modalImg.style.objectFit = 'contain';
-           
+
             modal.appendChild(modalImg);
             document.body.appendChild(modal);
-           
-            // Close modal on click
+
             modal.addEventListener('click', function() {
                 document.body.removeChild(modal);
             });
         });
-    });
-    // Contact form
+    }
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    galleryItems.forEach(makeBig);
+
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
     const messageInput = document.getElementById('message');
@@ -89,7 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
     hideError(messageInput, 'messageError');
     hideError(nameInput, 'nameError');
 
-    // Validation functions
     function validateName() {
         if (nameInput.value.trim() === '') {
             showError(nameInput, 'nameError', 'Name is required');
@@ -136,7 +125,6 @@ document.addEventListener('DOMContentLoaded', function() {
         input.parentElement.classList.remove('invalid');
     }
 
-    // Event listeners for validation
     nameInput.addEventListener('blur', validateName);
     emailInput.addEventListener('blur', validateEmail);
     messageInput.addEventListener('blur', validateMessage);
@@ -148,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const response = await emailjs.send(
                 'service_n4e5lzt',
-                'template_nuk3i22', // Replace with your EmailJS template ID
+                'template_nuk3i22',
                 formData
             );
 
@@ -156,7 +144,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 successMessage.style.display = 'block';
                 contactForm.reset();
 
-                // Hide success message after 5 seconds
                 setTimeout(() => {
                     successMessage.style.display = 'none';
                 }, 5000);
@@ -175,7 +162,6 @@ document.addEventListener('DOMContentLoaded', function() {
     contactForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        // Validate all fields
         const isNameValid = validateName();
         const isEmailValid = validateEmail();
         const isMessageValid = validateMessage();
